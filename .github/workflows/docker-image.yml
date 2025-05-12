@@ -27,7 +27,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/${{ github.repository_owner }}/remnawave-telegram-shop-bot
+          images: ghcr.io/${{ github.repository_owner }}/remnawave-telegram-bot-shop
           # Set up proper tagging strategy
           tags: |
             # Always include latest tag
