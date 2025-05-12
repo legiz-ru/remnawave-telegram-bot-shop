@@ -77,7 +77,7 @@ func (s *SubscriptionService) sendNotification(ctx context.Context, customer dat
 
 	messageText := fmt.Sprintf(
 		s.tm.GetText(customer.Language, "subscription_expiring"),
-		bot.EscapeMarkdown(expireDate),
+		expireDate,
 	)
 
 	_, err := s.telegramBot.SendMessage(ctx, &bot.SendMessageParams{
