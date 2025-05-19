@@ -17,7 +17,7 @@ purchase and manage subscriptions through Telegram with multiple payment system 
 ## Features
 
 - Purchase VPN subscriptions with different payment methods (bank cards, cryptocurrency)
-- Multiple subscription plans (1, 3, and 6 months)
+- Multiple subscription plans (1, 3, 6, 12 months)
 - Automated subscription management
 - **Subscription Notifications**: The bot automatically sends notifications to users 3 days before their subscription
   expires, helping them avoid service interruption
