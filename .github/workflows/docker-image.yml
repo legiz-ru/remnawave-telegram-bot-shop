@@ -8,7 +8,7 @@ on:
 
 jobs:
   build-docker-image:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     permissions:
       packages: write
     steps:
@@ -27,7 +27,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/${{ github.repository_owner }}/remnawave-telegram-shop-bot
+          images: ghcr.io/${{ github.repository_owner }}/remnawave-telegram-bot-shop
           # Set up proper tagging strategy
           tags: |
             # Always include latest tag
@@ -52,6 +52,3 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          build-args: |
-            VERSION=${{ steps.meta.outputs.version }}
-            COMMIT=${{ github.sha }}
