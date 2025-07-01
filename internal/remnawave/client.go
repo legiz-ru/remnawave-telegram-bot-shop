@@ -43,6 +43,15 @@ func NewClient(baseURL, token, mode string) *Client {
 	return &Client{client: remnawaveApi}
 }
 
+func (r *Client) Ping(ctx context.Context) error {
+	params := remapi.UsersControllerGetAllUsersParams{
+		Size:  remapi.NewOptFloat64(1),
+		Start: remapi.NewOptFloat64(0),
+	}
+	_, err := r.client.UsersControllerGetAllUsers(ctx, params)
+	return err
+}
+
 func (r *Client) GetUsers(ctx context.Context) (*[]remapi.UserDto, error) {
 	pageSize := float64(250)
 	start := float64(0)
@@ -180,6 +189,10 @@ func generateUsername(customerId int64, telegramId int64) string {
 
 func getNewExpire(daysToAdd int, currentExpire time.Time) time.Time {
 	if currentExpire.IsZero() {
+		return time.Now().UTC().AddDate(0, 0, daysToAdd)
+	}
+
+	if currentExpire.Before(time.Now().UTC()) {
 		return time.Now().UTC().AddDate(0, 0, daysToAdd)
 	}
 

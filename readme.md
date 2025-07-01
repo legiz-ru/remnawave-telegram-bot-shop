@@ -1,7 +1,9 @@
 # Remnawave Telegram Shop
+
 [![Stars](https://img.shields.io/github/stars/Jolymmiels/remnawave-telegram-shop.svg?style=social)](https://github.com/Jolymmiels/remnawave-telegram-shop/stargazers)
 [![Forks](https://img.shields.io/github/forks/Jolymmiels/remnawave-telegram-shop.svg?style=social)](https://github.com/Jolymmiels/remnawave-telegram-shop/network/members)
 [![Issues](https://img.shields.io/github/issues/Jolymmiels/remnawave-telegram-shop.svg)](https://github.com/Jolymmiels/remnawave-telegram-shop/issues)
+
 ## Description
 
 A Telegram bot for selling subscriptions with integration to Remnawave (https://remna.st/). This service allows users to
@@ -24,6 +26,12 @@ purchase and manage subscriptions through Telegram with multiple payment system 
 - Multi-language support (Russian and English)
 - **Selective Inbound Assignment**: Configure specific inbounds to assign to users via UUID filtering
 - All telegram message support HTML formatting https://core.telegram.org/bots/api#html-style
+- Healthcheck - bot checking availability of db, panel.
+
+## API
+
+- /healthcheck
+  
 ## Environment Variables
 
 The application requires the following environment variables to be set:
@@ -35,6 +43,10 @@ The application requires the following environment variables to be set:
 | `PRICE_6`                | Price for 6 month                                                                                                                            |
 | `MINI_APP_URL`           | tg WEB APP URL. if empty not be used.                                                                                                        |
 | `PRICE_12`               | Price for 12 month                                                                                                                           |
+| `STARS_PRICE_1`          | Price in Stars for 1 month                                                                                                                   
+| `STARS_PRICE_3`          | Price in Stars for 3 month                                                                                                                   
+| `STARS_PRICE_6`          | Price in Stars for 6 month                                                                                                                   
+| `STARS_PRICE_12`         | Price in Stars for 12 month                                                                                                                  
 | `REFERRAL_DAYS`          | Refferal days. if 0, then disabled.                                                                                                          |
 | `TELEGRAM_TOKEN`         | Telegram Bot API token for bot functionality                                                                                                 |
 | `DATABASE_URL`           | PostgreSQL connection string                                                                                                                 |
@@ -62,6 +74,7 @@ The application requires the following environment variables to be set:
 | `TRIAL_TRAFFIC_LIMIT`    | Maximum allowed traffic in gb for trial subscriptions                                                                                        |     
 | `TRIAL_DAYS`             | Number of days for trial subscriptions. if 0 = disabled.                                                                                     |
 | `INBOUND_UUIDS`          | Comma-separated list of inbound UUIDs to assign to users (e.g., "773db654-a8b2-413a-a50b-75c3536238fd,bc979bdd-f1fa-4d94-8a51-38a0f518a2a2") |
+| `HEALTH_CHECK_PORT`      | Health check port                                                                                                                            |
 
 ## User Interface
 

@@ -9,6 +9,7 @@ import (
 	"github.com/robfig/cron/v3"
 	"log"
 	"log/slog"
+	"net/http"
 	"os"
 	"os/signal"
 	"remnawave-tg-shop-bot/internal/cache"
@@ -129,8 +130,64 @@ func main() {
 		return update.Message != nil && update.Message.SuccessfulPayment != nil
 	}, h.SuccessPaymentHandler)
 
+	mux := http.NewServeMux()
+	mux.Handle("/healthcheck", fullHealthHandler(pool, remnawaveClient))
+
+	srv := &http.Server{
+		Addr:    fmt.Sprintf(":%d", config.GetHealthCheckPort()),
+		Handler: mux,
+	}
+	go func() {
+		log.Printf("🚑 Health server listening on %s", srv.Addr)
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Fatalf("Health server error: %v", err)
+		}
+	}()
+
 	slog.Info("Bot is starting...")
 	b.Start(ctx)
+
+	log.Println("Shutting down health server…")
+	shutdownCtx, shutCancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer shutCancel()
+	if err := srv.Shutdown(shutdownCtx); err != nil {
+		log.Printf("Health server shutdown error: %v", err)
+	}
+}
+
+func fullHealthHandler(pool *pgxpool.Pool, rw *remnawave.Client) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		status := map[string]string{
+			"status": "ok",
+			"db":     "ok",
+			"rw":     "ok",
+			"time":   time.Now().Format(time.RFC3339),
+		}
+
+		dbCtx, dbCancel := context.WithTimeout(r.Context(), 5*time.Second)
+		defer dbCancel()
+		if err := pool.Ping(dbCtx); err != nil {
+			w.WriteHeader(http.StatusServiceUnavailable)
+			status["status"] = "fail"
+			status["db"] = "error: " + err.Error()
+		}
+
+		rwCtx, rwCancel := context.WithTimeout(r.Context(), 5*time.Second)
+		defer rwCancel()
+		if err := rw.Ping(rwCtx); err != nil {
+			w.WriteHeader(http.StatusServiceUnavailable)
+			status["status"] = "fail"
+			status["rw"] = "error: " + err.Error()
+		}
+
+		if status["status"] == "ok" {
+			w.WriteHeader(http.StatusOK)
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		fmt.Fprintf(w, `{"status":"%s","db":"%s","remnawave":"%s","time":"%s"}`,
+			status["status"], status["db"], status["rw"], status["time"])
+	})
 }
 
 func isAdminMiddleware(next bot.HandlerFunc) bot.HandlerFunc {
