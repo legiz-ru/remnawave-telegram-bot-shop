@@ -22,6 +22,7 @@ import (
 	"remnawave-tg-shop-bot/internal/remnawave"
 	"remnawave-tg-shop-bot/internal/sync"
 	"remnawave-tg-shop-bot/internal/translation"
+	"remnawave-tg-shop-bot/internal/tribute"
 	"remnawave-tg-shop-bot/internal/yookasa"
 	"strconv"
 	"strings"
@@ -132,15 +133,19 @@ func main() {
 
 	mux := http.NewServeMux()
 	mux.Handle("/healthcheck", fullHealthHandler(pool, remnawaveClient))
+	if config.GetTributeWebHookUrl() != "" {
+		tributeHandler := tribute.NewClient(paymentService, customerRepository)
+		mux.Handle(config.GetTributeWebHookUrl(), tributeHandler.WebHookHandler())
+	}
 
 	srv := &http.Server{
 		Addr:    fmt.Sprintf(":%d", config.GetHealthCheckPort()),
 		Handler: mux,
 	}
 	go func() {
-		log.Printf("🚑 Health server listening on %s", srv.Addr)
+		log.Printf("Server listening on %s", srv.Addr)
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			log.Fatalf("Health server error: %v", err)
+			log.Fatalf("Server error: %v", err)
 		}
 	}()
 

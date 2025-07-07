@@ -17,6 +17,7 @@ const (
 	InvoiceTypeCrypto   InvoiceType = "crypto"
 	InvoiceTypeYookasa  InvoiceType = "yookasa"
 	InvoiceTypeTelegram InvoiceType = "telegram"
+	InvoiceTypeTribute  InvoiceType = "tribute"
 )
 
 type PurchaseStatus string

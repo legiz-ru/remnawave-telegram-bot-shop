@@ -16,6 +16,13 @@ purchase and manage subscriptions through Telegram with multiple payment system 
 - `/sync` - Poll users from remnawave and synchronize them with the database. Remove all users which not present in
   remnawave.
 
+### Payment Systems
+
+- [YooKassa API](https://yookassa.ru/developers/api)
+- [CryptoPay API](https://help.crypt.bot/crypto-pay-api)
+- Telegram Stars
+- Tribute
+
 ## Features
 
 - Purchase VPN subscriptions with different payment methods (bank cards, cryptocurrency)
@@ -30,8 +37,11 @@ purchase and manage subscriptions through Telegram with multiple payment system 
 
 ## API
 
+Web server start on port defined in .env via HEALTH_CHECK_PORT
+
 - /healthcheck
-  
+- /${TRIBUTE_PAYMENT_URL} - webhook for tribute
+
 ## Environment Variables
 
 The application requires the following environment variables to be set:
@@ -41,6 +51,7 @@ The application requires the following environment variables to be set:
 | `PRICE_1`                | Price for 1 month                                                                                                                            |
 | `PRICE_3`                | Price for 3 month                                                                                                                            |
 | `PRICE_6`                | Price for 6 month                                                                                                                            |
+| `HEALTH_CHECK_PORT`      | Server port                                                                                                                                  |
 | `MINI_APP_URL`           | tg WEB APP URL. if empty not be used.                                                                                                        |
 | `PRICE_12`               | Price for 12 month                                                                                                                           |
 | `STARS_PRICE_1`          | Price in Stars for 1 month                                                                                                                   
@@ -74,7 +85,9 @@ The application requires the following environment variables to be set:
 | `TRIAL_TRAFFIC_LIMIT`    | Maximum allowed traffic in gb for trial subscriptions                                                                                        |     
 | `TRIAL_DAYS`             | Number of days for trial subscriptions. if 0 = disabled.                                                                                     |
 | `INBOUND_UUIDS`          | Comma-separated list of inbound UUIDs to assign to users (e.g., "773db654-a8b2-413a-a50b-75c3536238fd,bc979bdd-f1fa-4d94-8a51-38a0f518a2a2") |
-| `HEALTH_CHECK_PORT`      | Health check port                                                                                                                            |
+| `TRIBUTE_WEBHOOK_URL`    | Path for webhook handler. Example: /example                                                                                                  |
+| `TRIBUTE_API_KEY`        | Api key. Getted from settings in Tribute app.                                                                                                |
+| `TRIBUTE_PAYMENT_URL`    | You payment url for tribute. (Subscription url)                                                                                              |
 
 ## User Interface
 
@@ -112,12 +125,6 @@ The bot supports selective inbound assignment to users:
 
 - [PostgreSQL](https://www.postgresql.org/)
 - [pgx - PostgreSQL Driver](https://github.com/jackc/pgx)
-
-### Payment Systems
-
-- [YooKassa API](https://yookassa.ru/developers/api)
-- [CryptoPay API](https://help.crypt.bot/crypto-pay-api)
-- Telegram Stars
 
 ## Setup Instructions
 

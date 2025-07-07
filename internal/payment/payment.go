@@ -185,6 +185,8 @@ func (s PaymentService) CreatePurchase(ctx context.Context, amount int, months i
 		return s.createYookasaInvoice(ctx, amount, months, customer)
 	case database.InvoiceTypeTelegram:
 		return s.createTelegramInvoice(ctx, amount, months, customer)
+	case database.InvoiceTypeTribute:
+		return s.createTributeInvoice(ctx, amount, months, customer)
 	default:
 		return "", 0, fmt.Errorf("unknown invoice type: %s", invoiceType)
 	}
@@ -362,4 +364,21 @@ func (s PaymentService) CancelPayment(purchaseId int64) error {
 	}
 
 	return nil
+}
+
+func (s PaymentService) createTributeInvoice(ctx context.Context, amount int, months int, customer *database.Customer) (url string, purchaseId int64, err error) {
+	purchaseId, err = s.purchaseRepository.Create(ctx, &database.Purchase{
+		InvoiceType: database.InvoiceTypeTribute,
+		Status:      database.PurchaseStatusPending,
+		Amount:      float64(amount),
+		Currency:    "RUB",
+		CustomerID:  customer.ID,
+		Month:       months,
+	})
+	if err != nil {
+		slog.Error("Error creating purchase", err)
+		return "", 0, err
+	}
+
+	return "", purchaseId, nil
 }

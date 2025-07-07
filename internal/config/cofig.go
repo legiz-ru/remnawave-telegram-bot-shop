@@ -35,9 +35,21 @@ type config struct {
 	miniApp                                                   string
 	enableAutoPayment                                         bool
 	healthCheckPort                                           int
+	tributeWebhookUrl, tributeAPIKey, tributePaymentUrl       string
 }
 
 var conf config
+
+func GetTributeWebHookUrl() string {
+	return conf.tributeWebhookUrl
+}
+func GetTributeAPIKey() string {
+	return conf.tributeAPIKey
+}
+
+func GetTributePaymentUrl() string {
+	return conf.tributePaymentUrl
+}
 
 func GetReferralDays() int {
 	return conf.referralDays
@@ -268,7 +280,7 @@ func InitConfig() {
 	conf.remnawaveMode = func() string {
 		v := os.Getenv("REMNAWAVE_MODE")
 		if v != "" {
-			if conf.remnawaveMode != "remote" && conf.remnawaveMode != "local" {
+			if v != "remote" && v != "local" {
 				panic("REMNAWAVE_MODE .env variable must be either 'remote' or 'local'")
 			} else {
 				return v
@@ -306,7 +318,7 @@ func InitConfig() {
 	conf.tosURL = os.Getenv("TOS_URL")
 
 	conf.inboundUUIDs = func() map[uuid.UUID]uuid.UUID {
-		v := os.Getenv("INBOUND_UUID")
+		v := os.Getenv("INBOUND_UUIDS")
 		if v != "" {
 			uuids := strings.Split(v, ",")
 			var inboundsMap = make(map[uuid.UUID]uuid.UUID)
@@ -317,11 +329,17 @@ func InitConfig() {
 				}
 				inboundsMap[uuid] = uuid
 			}
-			slog.Info("Loaded inbound UUIDs", "uuids", conf.inboundUUIDs)
+			slog.Info("Loaded inbound UUIDs", "uuids", uuids)
 			return inboundsMap
 		} else {
 			slog.Info("No inbound UUIDs specified, all will be used")
 			return map[uuid.UUID]uuid.UUID{}
 		}
 	}()
+
+	conf.tributeWebhookUrl = os.Getenv("TRIBUTE_WEBHOOK_URL")
+	if conf.tributeWebhookUrl != "" {
+		conf.tributeAPIKey = mustEnv("TRIBUTE_API_KEY")
+		conf.tributePaymentUrl = mustEnv("TRIBUTE_PAYMENT_URL")
+	}
 }
