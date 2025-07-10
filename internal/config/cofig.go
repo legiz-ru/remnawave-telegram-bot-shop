@@ -36,6 +36,8 @@ type config struct {
 	enableAutoPayment                                         bool
 	healthCheckPort                                           int
 	tributeWebhookUrl, tributeAPIKey, tributePaymentUrl       string
+	isWebAppLinkEnabled                                       bool
+	xApiKey                                                   string
 }
 
 var conf config
@@ -199,6 +201,14 @@ func GetHealthCheckPort() int {
 	return conf.healthCheckPort
 }
 
+func IsWepAppLinkEnabled() bool {
+	return conf.isWebAppLinkEnabled
+}
+
+func GetXApiKey() string {
+	return conf.xApiKey
+}
+
 const bytesInGigabyte = 1073741824
 
 func mustEnv(key string) string {
@@ -235,14 +245,25 @@ func envBool(key string) bool {
 }
 
 func InitConfig() {
-	err := godotenv.Load(".env")
-
+	if os.Getenv("DISABLE_ENV_FILE") != "true" {
+		if err := godotenv.Load(".env"); err != nil {
+			log.Println("No .env loaded:", err)
+		}
+	}
+	var err error
 	conf.adminTelegramId, err = strconv.ParseInt(os.Getenv("ADMIN_TELEGRAM_ID"), 10, 64)
 	if err != nil {
 		panic("ADMIN_TELEGRAM_ID .env variable not set")
 	}
 
 	conf.telegramToken = mustEnv("TELEGRAM_TOKEN")
+
+	conf.xApiKey = os.Getenv("X_API_KEY")
+
+	conf.isWebAppLinkEnabled = func() bool {
+		isWebAppLinkEnabled := os.Getenv("IS_WEB_APP_LINK") == "true"
+		return isWebAppLinkEnabled
+	}()
 
 	conf.miniApp = func() string {
 		v := os.Getenv("MINI_APP_URL")

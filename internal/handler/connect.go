@@ -3,6 +3,7 @@ package handler
 import (
 	"context"
 	"fmt"
+	"remnawave-tg-shop-bot/internal/config"
 	"strings"
 	"time"
 
@@ -63,6 +64,17 @@ func (h Handler) ConnectCallbackHandler(ctx context.Context, b *bot.Bot, update 
 
 	langCode := update.CallbackQuery.From.LanguageCode
 
+	var markup [][]models.InlineKeyboardButton
+	if config.IsWepAppLinkEnabled() {
+		if customer.SubscriptionLink != nil && customer.ExpireAt.After(time.Now()) {
+			markup = append(markup, []models.InlineKeyboardButton{{Text: h.translation.GetText(langCode, "connect_button"),
+				WebApp: &models.WebAppInfo{
+					URL: *customer.SubscriptionLink,
+				}}})
+		}
+	}
+	markup = append(markup, []models.InlineKeyboardButton{{Text: h.translation.GetText(langCode, "back_button"), CallbackData: CallbackStart}})
+
 	isDisabled := true
 	_, err = b.EditMessageText(ctx, &bot.EditMessageTextParams{
 		ChatID:    callback.Chat.ID,
@@ -73,9 +85,7 @@ func (h Handler) ConnectCallbackHandler(ctx context.Context, b *bot.Bot, update 
 			IsDisabled: &isDisabled,
 		},
 		ReplyMarkup: models.InlineKeyboardMarkup{
-			InlineKeyboard: [][]models.InlineKeyboardButton{
-				{{Text: h.translation.GetText(langCode, "back_button"), CallbackData: CallbackStart}},
-			},
+			InlineKeyboard: markup,
 		},
 	})
 
@@ -99,8 +109,11 @@ func buildConnectText(customer *database.Customer, langCode string) string {
 			info.WriteString(fmt.Sprintf(subscriptionActiveText, formattedDate))
 
 			if customer.SubscriptionLink != nil && *customer.SubscriptionLink != "" {
-				subscriptionLinkText := tm.GetText(langCode, "subscription_link")
-				info.WriteString(fmt.Sprintf(subscriptionLinkText, *customer.SubscriptionLink))
+				if config.IsWepAppLinkEnabled() {
+				} else {
+					subscriptionLinkText := tm.GetText(langCode, "subscription_link")
+					info.WriteString(fmt.Sprintf(subscriptionLinkText, *customer.SubscriptionLink))
+				}
 			}
 		} else {
 			noSubscriptionText := tm.GetText(langCode, "no_subscription")

@@ -20,27 +20,43 @@ type Client struct {
 }
 
 type headerTransport struct {
-	base http.RoundTripper
+	base    http.RoundTripper
+	xApiKey string
+	local   bool
 }
 
 func (t *headerTransport) RoundTrip(req *http.Request) (*http.Response, error) {
-	req.Header.Set("x-forwarded-for", "127.0.0.1")
-	req.Header.Set("x-forwarded-proto", "https")
-	return t.base.RoundTrip(req)
+	r := req.Clone(req.Context())
+
+	if t.xApiKey != "" {
+		r.Header.Set("X-Api-Key", t.xApiKey)
+	}
+
+	if t.local {
+		r.Header.Set("x-forwarded-for", "127.0.0.1")
+		r.Header.Set("x-forwarded-proto", "https")
+	}
+
+	return t.base.RoundTrip(r)
 }
 
 func NewClient(baseURL, token, mode string) *Client {
-	client := &http.Client{}
-	if mode == "local" {
-		client.Transport = &headerTransport{
-			base: http.DefaultTransport,
-		}
+	xApiKey := config.GetXApiKey()
+	local := mode == "local"
+
+	client := &http.Client{
+		Transport: &headerTransport{
+			base:    http.DefaultTransport,
+			xApiKey: xApiKey,
+			local:   local,
+		},
 	}
-	remnawaveApi, err := remapi.NewClient(baseURL, remapi.StaticToken{Token: token}, remapi.WithClient(client))
+
+	api, err := remapi.NewClient(baseURL, remapi.StaticToken{Token: token}, remapi.WithClient(client))
 	if err != nil {
 		panic(err)
 	}
-	return &Client{client: remnawaveApi}
+	return &Client{client: api}
 }
 
 func (r *Client) Ping(ctx context.Context) error {

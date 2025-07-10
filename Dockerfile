@@ -42,4 +42,6 @@ COPY --from=builder /app/translations /translations
 
 USER 1000
 
+ENV DISABLE_ENV_FILE=true
+
 CMD ["/app/app"]
