@@ -80,7 +80,7 @@ func (s PaymentService) ProcessPurchaseById(ctx context.Context, purchaseId int6
 		}
 	}
 
-	user, err := s.remnawaveClient.CreateOrUpdateUser(ctx, customer.ID, customer.TelegramID, config.TrafficLimit(), purchase.Month*30)
+	user, err := s.remnawaveClient.CreateOrUpdateUser(ctx, customer.ID, customer.TelegramID, config.TrafficLimit(), purchase.Month*config.DaysInMonth())
 	if err != nil {
 		return err
 	}

@@ -51,6 +51,9 @@ The application requires the following environment variables to be set:
 | `PRICE_1`                | Price for 1 month                                                                                                                            |
 | `PRICE_3`                | Price for 3 month                                                                                                                            |
 | `PRICE_6`                | Price for 6 month                                                                                                                            |
+| `PRICE_12`               | Price for 12 month                                                                                                                           |
+| `DAYS_IN_MONTH`          | Days in month                                                                                                                                |
+| `REMNAWAVE_TAG`          | Tag in remnawave                                                                                                                             |
 | `HEALTH_CHECK_PORT`      | Server port                                                                                                                                  |
 | `IS_WEB_APP_LINK`        | If true, then sublink will be showed as webapp..                                                                                             |
 | `X_API_KEY`              | https://remna.st/docs/security/tinyauth-for-nginx#issuing-api-keys                                                                           |

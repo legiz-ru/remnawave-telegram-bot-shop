@@ -133,6 +133,10 @@ func (r *Client) updateUser(ctx context.Context, existingUser *remapi.UserDto, t
 		TrafficLimitBytes: remapi.NewOptInt(trafficLimit),
 	}
 
+	if config.RemnawaveTag() != "" && (existingUser.Tag.IsNull() || !existingUser.Tag.IsSet()) {
+		userUpdate.Tag = remapi.NewOptNilString(config.RemnawaveTag())
+	}
+
 	var username string
 	if ctx.Value("username") != nil {
 		username = ctx.Value("username").(string)
@@ -181,6 +185,9 @@ func (r *Client) createUser(ctx context.Context, customerId int64, telegramId in
 		ExpireAt:             expireAt,
 		TrafficLimitStrategy: remapi.CreateUserRequestDtoTrafficLimitStrategyMONTH,
 		TrafficLimitBytes:    remapi.NewOptInt(trafficLimit),
+	}
+	if config.RemnawaveTag() != "" {
+		createUserRequestDto.Tag = remapi.NewOptNilString(config.RemnawaveTag())
 	}
 
 	var tgUsername string

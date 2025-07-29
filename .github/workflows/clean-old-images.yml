@@ -1,0 +1,15 @@
+name: Clean Old Package Images
+on:
+  workflow_dispatch:
+jobs:
+  cleanup:
+    runs-on: self-hosted
+    steps:
+      - name: Delete old package versions
+        uses: actions/delete-package-versions@v4
+        with:
+          owner: 'jolymmiels'
+          package-name: 'remnawave-telegram-shop-bot'
+          package-type: 'container'
+          min-versions-to-keep: 5
+          token: ${{ secrets.GITHUB_TOKEN }}

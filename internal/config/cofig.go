@@ -14,7 +14,7 @@ type config struct {
 	telegramToken                                             string
 	price1, price3, price6, price12                           int
 	starsPrice1, starsPrice3, starsPrice6, starsPrice12       int
-	remnawaveUrl, remnawaveToken, remnawaveMode               string
+	remnawaveUrl, remnawaveToken, remnawaveMode, remnawaveTag string
 	databaseURL                                               string
 	cryptoPayURL, cryptoPayToken                              string
 	botURL                                                    string
@@ -38,10 +38,14 @@ type config struct {
 	tributeWebhookUrl, tributeAPIKey, tributePaymentUrl       string
 	isWebAppLinkEnabled                                       bool
 	xApiKey                                                   string
+	daysInMonth                                               int
 }
 
 var conf config
 
+func RemnawaveTag() string {
+	return conf.remnawaveTag
+}
 func GetTributeWebHookUrl() string {
 	return conf.tributeWebhookUrl
 }
@@ -110,6 +114,10 @@ func Price6() int {
 
 func Price12() int {
 	return conf.price12
+}
+
+func DaysInMonth() int {
+	return conf.daysInMonth
 }
 
 func Price(month int) int {
@@ -240,6 +248,14 @@ func envIntDefault(key string, def int) int {
 	return i
 }
 
+func envStringDefault(key string, def string) string {
+	v := os.Getenv(key)
+	if v == "" {
+		return def
+	}
+	return v
+}
+
 func envBool(key string) bool {
 	return os.Getenv(key) == "true"
 }
@@ -265,14 +281,11 @@ func InitConfig() {
 		return isWebAppLinkEnabled
 	}()
 
-	conf.miniApp = func() string {
-		v := os.Getenv("MINI_APP_URL")
-		if v != "" {
-			return v
-		} else {
-			return ""
-		}
-	}()
+	conf.miniApp = envStringDefault("MINI_APP_URL", "")
+
+	conf.remnawaveTag = envStringDefault("REMNAWAVE_TAG", "")
+
+	conf.daysInMonth = envIntDefault("DAYS_IN_MONTH", 30)
 
 	conf.trialTrafficLimit = mustEnvInt("TRIAL_TRAFFIC_LIMIT")
 
