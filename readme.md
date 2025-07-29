@@ -35,6 +35,13 @@ purchase and manage subscriptions through Telegram with multiple payment system 
 - All telegram message support HTML formatting https://core.telegram.org/bots/api#html-style
 - Healthcheck - bot checking availability of db, panel.
 
+## Version Support
+
+| Remnawave | Bot   |
+|-------|-------|
+| 1.6   | 2.3.6 |
+| 2     | 3.0.0 |
+
 ## API
 
 Web server start on port defined in .env via HEALTH_CHECK_PORT
@@ -46,53 +53,53 @@ Web server start on port defined in .env via HEALTH_CHECK_PORT
 
 The application requires the following environment variables to be set:
 
-| Variable                 | Description                                                                                                                                  |
-|--------------------------|----------------------------------------------------------------------------------------------------------------------------------------------| 
-| `PRICE_1`                | Price for 1 month                                                                                                                            |
-| `PRICE_3`                | Price for 3 month                                                                                                                            |
-| `PRICE_6`                | Price for 6 month                                                                                                                            |
-| `PRICE_12`               | Price for 12 month                                                                                                                           |
-| `DAYS_IN_MONTH`          | Days in month                                                                                                                                |
-| `REMNAWAVE_TAG`          | Tag in remnawave                                                                                                                             |
-| `HEALTH_CHECK_PORT`      | Server port                                                                                                                                  |
-| `IS_WEB_APP_LINK`        | If true, then sublink will be showed as webapp..                                                                                             |
-| `X_API_KEY`              | https://remna.st/docs/security/tinyauth-for-nginx#issuing-api-keys                                                                           |
-| `MINI_APP_URL`           | tg WEB APP URL. if empty not be used.                                                                                                        |
-| `PRICE_12`               | Price for 12 month                                                                                                                           |
-| `STARS_PRICE_1`          | Price in Stars for 1 month                                                                                                                   
-| `STARS_PRICE_3`          | Price in Stars for 3 month                                                                                                                   
-| `STARS_PRICE_6`          | Price in Stars for 6 month                                                                                                                   
-| `STARS_PRICE_12`         | Price in Stars for 12 month                                                                                                                  
-| `REFERRAL_DAYS`          | Refferal days. if 0, then disabled.                                                                                                          |
-| `TELEGRAM_TOKEN`         | Telegram Bot API token for bot functionality                                                                                                 |
-| `DATABASE_URL`           | PostgreSQL connection string                                                                                                                 |
-| `POSTGRES_USER`          | PostgreSQL username                                                                                                                          |
-| `POSTGRES_PASSWORD`      | PostgreSQL password                                                                                                                          |
-| `POSTGRES_DB`            | PostgreSQL database name                                                                                                                     |
-| `REMNAWAVE_URL`          | Remnawave API URL                                                                                                                            |
-| `REMNAWAVE_MODE`         | Remnawave mode (remote/local), default is remote. If local set – you can pass http://remnawave:3000 to REMNAWAVE_URL                         |
-| `REMNAWAVE_TOKEN`        | Authentication token for Remnawave API                                                                                                       |
-| `CRYPTO_PAY_ENABLED`     | Enable/disable CryptoPay payment method (true/false)                                                                                         |
-| `CRYPTO_PAY_TOKEN`       | CryptoPay API token                                                                                                                          |
-| `CRYPTO_PAY_URL`         | CryptoPay API URL                                                                                                                            |
-| `YOOKASA_ENABLED`        | Enable/disable YooKassa payment method (true/false)                                                                                          |
-| `YOOKASA_SECRET_KEY`     | YooKassa API secret key                                                                                                                      |
-| `YOOKASA_SHOP_ID`        | YooKassa shop identifier                                                                                                                     |
-| `YOOKASA_URL`            | YooKassa API URL                                                                                                                             |
-| `YOOKASA_EMAIL`          | Email address associated with YooKassa account                                                                                               |
-| `TRAFFIC_LIMIT`          | Maximum allowed traffic in gb (0 to set unlimited)                                                                                           |
-| `TELEGRAM_STARS_ENABLED` | Enable/disable Telegram Stars payment method (true/false)                                                                                    |
-| `SERVER_STATUS_URL`      | URL to server status page (optional) - if not set, button will not be displayed                                                              |
-| `SUPPORT_URL`            | URL to support chat or page (optional) - if not set, button will not be displayed                                                            |
-| `FEEDBACK_URL`           | URL to feedback/reviews page (optional) - if not set, button will not be displayed                                                           |
-| `CHANNEL_URL`            | URL to Telegram channel (optional) - if not set, button will not be displayed                                                                |
-| `ADMIN_TELEGRAM_ID`      | Admin telegram id                                                                                                                            |
-| `TRIAL_TRAFFIC_LIMIT`    | Maximum allowed traffic in gb for trial subscriptions                                                                                        |     
-| `TRIAL_DAYS`             | Number of days for trial subscriptions. if 0 = disabled.                                                                                     |
-| `INBOUND_UUIDS`          | Comma-separated list of inbound UUIDs to assign to users (e.g., "773db654-a8b2-413a-a50b-75c3536238fd,bc979bdd-f1fa-4d94-8a51-38a0f518a2a2") |
-| `TRIBUTE_WEBHOOK_URL`    | Path for webhook handler. Example: /example (https://www.uuidgenerator.net/version4)                                                         |
-| `TRIBUTE_API_KEY`        | Api key, which can be obtained via settings in Tribute app.                                                                                  |
-| `TRIBUTE_PAYMENT_URL`    | You payment url for Tribute. (Subscription telegram link)                                                                                    |
+| Variable                 | Description                                                                                                                                |
+|--------------------------|--------------------------------------------------------------------------------------------------------------------------------------------| 
+| `PRICE_1`                | Price for 1 month                                                                                                                          |
+| `PRICE_3`                | Price for 3 month                                                                                                                          |
+| `PRICE_6`                | Price for 6 month                                                                                                                          |
+| `PRICE_12`               | Price for 12 month                                                                                                                         |
+| `DAYS_IN_MONTH`          | Days in month                                                                                                                              |
+| `REMNAWAVE_TAG`          | Tag in remnawave                                                                                                                           |
+| `HEALTH_CHECK_PORT`      | Server port                                                                                                                                |
+| `IS_WEB_APP_LINK`        | If true, then sublink will be showed as webapp..                                                                                           |
+| `X_API_KEY`              | https://remna.st/docs/security/tinyauth-for-nginx#issuing-api-keys                                                                         |
+| `MINI_APP_URL`           | tg WEB APP URL. if empty not be used.                                                                                                      |
+| `PRICE_12`               | Price for 12 month                                                                                                                         |
+| `STARS_PRICE_1`          | Price in Stars for 1 month                                                                                                                 
+| `STARS_PRICE_3`          | Price in Stars for 3 month                                                                                                                 
+| `STARS_PRICE_6`          | Price in Stars for 6 month                                                                                                                 
+| `STARS_PRICE_12`         | Price in Stars for 12 month                                                                                                                
+| `REFERRAL_DAYS`          | Refferal days. if 0, then disabled.                                                                                                        |
+| `TELEGRAM_TOKEN`         | Telegram Bot API token for bot functionality                                                                                               |
+| `DATABASE_URL`           | PostgreSQL connection string                                                                                                               |
+| `POSTGRES_USER`          | PostgreSQL username                                                                                                                        |
+| `POSTGRES_PASSWORD`      | PostgreSQL password                                                                                                                        |
+| `POSTGRES_DB`            | PostgreSQL database name                                                                                                                   |
+| `REMNAWAVE_URL`          | Remnawave API URL                                                                                                                          |
+| `REMNAWAVE_MODE`         | Remnawave mode (remote/local), default is remote. If local set – you can pass http://remnawave:3000 to REMNAWAVE_URL                       |
+| `REMNAWAVE_TOKEN`        | Authentication token for Remnawave API                                                                                                     |
+| `CRYPTO_PAY_ENABLED`     | Enable/disable CryptoPay payment method (true/false)                                                                                       |
+| `CRYPTO_PAY_TOKEN`       | CryptoPay API token                                                                                                                        |
+| `CRYPTO_PAY_URL`         | CryptoPay API URL                                                                                                                          |
+| `YOOKASA_ENABLED`        | Enable/disable YooKassa payment method (true/false)                                                                                        |
+| `YOOKASA_SECRET_KEY`     | YooKassa API secret key                                                                                                                    |
+| `YOOKASA_SHOP_ID`        | YooKassa shop identifier                                                                                                                   |
+| `YOOKASA_URL`            | YooKassa API URL                                                                                                                           |
+| `YOOKASA_EMAIL`          | Email address associated with YooKassa account                                                                                             |
+| `TRAFFIC_LIMIT`          | Maximum allowed traffic in gb (0 to set unlimited)                                                                                         |
+| `TELEGRAM_STARS_ENABLED` | Enable/disable Telegram Stars payment method (true/false)                                                                                  |
+| `SERVER_STATUS_URL`      | URL to server status page (optional) - if not set, button will not be displayed                                                            |
+| `SUPPORT_URL`            | URL to support chat or page (optional) - if not set, button will not be displayed                                                          |
+| `FEEDBACK_URL`           | URL to feedback/reviews page (optional) - if not set, button will not be displayed                                                         |
+| `CHANNEL_URL`            | URL to Telegram channel (optional) - if not set, button will not be displayed                                                              |
+| `ADMIN_TELEGRAM_ID`      | Admin telegram id                                                                                                                          |
+| `TRIAL_TRAFFIC_LIMIT`    | Maximum allowed traffic in gb for trial subscriptions                                                                                      |     
+| `TRIAL_DAYS`             | Number of days for trial subscriptions. if 0 = disabled.                                                                                   |
+| `SQUAD_UUIDS`            | Comma-separated list of squad UUIDs to assign to users (e.g., "773db654-a8b2-413a-a50b-75c3536238fd,bc979bdd-f1fa-4d94-8a51-38a0f518a2a2") |
+| `TRIBUTE_WEBHOOK_URL`    | Path for webhook handler. Example: /example (https://www.uuidgenerator.net/version4)                                                       |
+| `TRIBUTE_API_KEY`        | Api key, which can be obtained via settings in Tribute app.                                                                                |
+| `TRIBUTE_PAYMENT_URL`    | You payment url for Tribute. (Subscription telegram link)                                                                                  |
 
 ## User Interface
 
@@ -153,21 +160,25 @@ docker compose up -d
 
 ## Tribute payment setup instructions
 
-> [!WARNING] 
+> [!WARNING]
 > To integrate with Tribute, you must have a public domain (e.g., `bot.example.com`) that points to your bot server.  
-> Webhook and subscription setup will not work on a local address or IP — only via a domain with a valid SSL certificate.
+> Webhook and subscription setup will not work on a local address or IP — only via a domain with a valid SSL
+> certificate.
 
 ### How the integration works
 
-The bot supports subscription management via the Tribute service. When a user clicks the payment button, they are redirected to the Tribute bot or payment page to complete the subscription. After successful payment, Tribute sends a webhook to your server, and the bot activates the subscription for the user.
+The bot supports subscription management via the Tribute service. When a user clicks the payment button, they are
+redirected to the Tribute bot or payment page to complete the subscription. After successful payment, Tribute sends a
+webhook to your server, and the bot activates the subscription for the user.
 
 ### Step-by-step setup guide
 
 1. Getting started
-  * Create a channel;
-  * In the Tribute app, open "Channels and Groups" and add your channel;
-  * Create a new subscription;
-  * Obtain the subscription link (Subscription -> Links -> Telegram Link).
+
+* Create a channel;
+* In the Tribute app, open "Channels and Groups" and add your channel;
+* Create a new subscription;
+* Obtain the subscription link (Subscription -> Links -> Telegram Link).
 
 2. Configure environment variables in `.env`
     * Set the webhook path (e.g., `/tribute/webhook`):
@@ -212,7 +223,6 @@ Go to folder translations inside bot folder and change needed language.
 docker compose pull
 ```
 
-
 2. Restart the containers:
 
 ```bash
@@ -225,7 +235,7 @@ If you are not using ngrok from `docker-compose.yml`, you need to set up a rever
 
 <details>
 <summary>Traefik Configuration</summary>
-  
+
 ```yaml
 http:
   routers:

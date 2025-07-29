@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	remapi "github.com/Jolymmiles/remnawave-api-go/api"
+	remapi "github.com/Jolymmiles/remnawave-api-go/v2/api"
 	"github.com/google/uuid"
 	"log/slog"
 	"net/http"
@@ -80,7 +80,7 @@ func (r *Client) GetUsers(ctx context.Context) (*[]remapi.UserDto, error) {
 		if err != nil {
 			return nil, err
 		}
-		response := resp.GetResponse()
+		response := resp.(*remapi.GetAllUsersResponseDto).GetResponse()
 
 		usersResponse := &response.Users
 
@@ -133,7 +133,7 @@ func (r *Client) updateUser(ctx context.Context, existingUser *remapi.UserDto, t
 		TrafficLimitBytes: remapi.NewOptInt(trafficLimit),
 	}
 
-	if config.RemnawaveTag() != "" && (existingUser.Tag.IsNull() || !existingUser.Tag.IsSet()) {
+	if config.RemnawaveTag() != "" && (existingUser.Tag.IsNull()) {
 		userUpdate.Tag = remapi.NewOptNilString(config.RemnawaveTag())
 	}
 
@@ -151,39 +151,39 @@ func (r *Client) updateUser(ctx context.Context, existingUser *remapi.UserDto, t
 	}
 	tgid, _ := existingUser.TelegramId.Get()
 	slog.Info("updated user", "telegramId", utils.MaskHalf(strconv.Itoa(tgid)), "username", utils.MaskHalf(username), "days", days)
-	return &updateUser.Response, nil
+	return &updateUser.(*remapi.UserResponseDto).Response, nil
 }
 
 func (r *Client) createUser(ctx context.Context, customerId int64, telegramId int64, trafficLimit int, days int) (*remapi.UserDto, error) {
 	expireAt := time.Now().UTC().AddDate(0, 0, days)
 	username := generateUsername(customerId, telegramId)
 
-	resp, err := r.client.InboundsControllerGetInbounds(ctx)
+	resp, err := r.client.InternalSquadControllerGetInternalSquads(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	inbounds := resp.GetResponse()
-	inboundsId := make([]uuid.UUID, 0, len(config.InboundUUIDs()))
-	for _, inbound := range inbounds {
-		if config.InboundUUIDs() != nil && len(config.InboundUUIDs()) > 0 {
-			if _, isExist := config.InboundUUIDs()[inbound.UUID]; !isExist {
+	squads := resp.(*remapi.GetInternalSquadsResponseDto).GetResponse()
+	squadId := make([]uuid.UUID, 0, len(config.SquadUUIDs()))
+	for _, squad := range squads.GetInternalSquads() {
+		if config.SquadUUIDs() != nil && len(config.SquadUUIDs()) > 0 {
+			if _, isExist := config.SquadUUIDs()[squad.UUID]; !isExist {
 				continue
 			} else {
-				inboundsId = append(inboundsId, inbound.UUID)
+				squadId = append(squadId, squad.UUID)
 			}
 		} else {
-			inboundsId = append(inboundsId, inbound.UUID)
+			squadId = append(squadId, squad.UUID)
 		}
 	}
 
 	createUserRequestDto := remapi.CreateUserRequestDto{
 		Username:             username,
-		ActiveUserInbounds:   inboundsId,
+		ActiveInternalSquads: squadId,
 		Status:               remapi.NewOptCreateUserRequestDtoStatus(remapi.CreateUserRequestDtoStatusACTIVE),
-		TelegramId:           remapi.NewOptInt(int(telegramId)),
+		TelegramId:           remapi.NewOptNilInt(int(telegramId)),
 		ExpireAt:             expireAt,
-		TrafficLimitStrategy: remapi.CreateUserRequestDtoTrafficLimitStrategyMONTH,
+		TrafficLimitStrategy: remapi.NewOptCreateUserRequestDtoTrafficLimitStrategy(remapi.CreateUserRequestDtoTrafficLimitStrategyMONTH),
 		TrafficLimitBytes:    remapi.NewOptInt(trafficLimit),
 	}
 	if config.RemnawaveTag() != "" {
@@ -203,7 +203,7 @@ func (r *Client) createUser(ctx context.Context, customerId int64, telegramId in
 		return nil, err
 	}
 	slog.Info("created user", "telegramId", utils.MaskHalf(strconv.FormatInt(telegramId, 10)), "username", utils.MaskHalf(tgUsername), "days", days)
-	return &userCreate.Response, nil
+	return &userCreate.(*remapi.UserResponseDto).Response, nil
 }
 
 func generateUsername(customerId int64, telegramId int64) string {
