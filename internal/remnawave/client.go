@@ -96,6 +96,32 @@ func (r *Client) GetUsers(ctx context.Context) (*[]remapi.UserDto, error) {
 	return &users, nil
 }
 
+func (r *Client) DecreaseSubscription(ctx context.Context, telegramId int64, trafficLimit, days int) (*time.Time, error) {
+	resp, err := r.client.UsersControllerGetUserByTelegramId(ctx, remapi.UsersControllerGetUserByTelegramIdParams{TelegramId: strconv.FormatInt(telegramId, 10)})
+	if err != nil {
+		return nil, err
+	}
+
+	switch v := resp.(type) {
+	case *remapi.UsersControllerGetUserByTelegramIdNotFound:
+		return nil, errors.New("user in remnawave not found")
+	case *remapi.UsersDto:
+		var existingUser *remapi.UserDto
+		for _, panelUser := range v.GetResponse() {
+			if strings.Contains(panelUser.Username, fmt.Sprintf("_%d", telegramId)) {
+				existingUser = &panelUser
+			}
+		}
+		if existingUser == nil {
+			existingUser = &v.GetResponse()[0]
+		}
+		updatedUser, err := r.updateUser(ctx, existingUser, trafficLimit, days)
+		return &updatedUser.ExpireAt, err
+	default:
+		return nil, errors.New("unknown response type")
+	}
+}
+
 func (r *Client) CreateOrUpdateUser(ctx context.Context, customerId int64, telegramId int64, trafficLimit int, days int) (*remapi.UserDto, error) {
 	resp, err := r.client.UsersControllerGetUserByTelegramId(ctx, remapi.UsersControllerGetUserByTelegramIdParams{TelegramId: strconv.FormatInt(telegramId, 10)})
 	if err != nil {
@@ -211,6 +237,9 @@ func generateUsername(customerId int64, telegramId int64) string {
 }
 
 func getNewExpire(daysToAdd int, currentExpire time.Time) time.Time {
+	if daysToAdd <= 0 {
+		return time.Now().UTC().AddDate(0, 0, 1)
+	}
 	if currentExpire.IsZero() {
 		return time.Now().UTC().AddDate(0, 0, daysToAdd)
 	}

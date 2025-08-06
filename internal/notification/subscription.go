@@ -8,32 +8,83 @@ import (
 	"log/slog"
 	"remnawave-tg-shop-bot/internal/database"
 	"remnawave-tg-shop-bot/internal/handler"
+	"remnawave-tg-shop-bot/internal/payment"
 	"remnawave-tg-shop-bot/internal/translation"
 	"time"
 )
 
 type SubscriptionService struct {
 	customerRepository *database.CustomerRepository
+	purchaseRepository *database.PurchaseRepository
+	paymentService     *payment.PaymentService
 	telegramBot        *bot.Bot
 	tm                 *translation.Manager
 }
 
-func NewSubscriptionService(customerRepository *database.CustomerRepository, telegramBot *bot.Bot, tm *translation.Manager) *SubscriptionService {
-	return &SubscriptionService{customerRepository: customerRepository, telegramBot: telegramBot, tm: tm}
+func NewSubscriptionService(customerRepository *database.CustomerRepository,
+	purchaseRepository *database.PurchaseRepository,
+	paymentService *payment.PaymentService,
+	telegramBot *bot.Bot,
+	tm *translation.Manager) *SubscriptionService {
+	return &SubscriptionService{customerRepository: customerRepository, purchaseRepository: purchaseRepository, paymentService: paymentService, telegramBot: telegramBot, tm: tm}
 }
-
-func (s *SubscriptionService) SendSubscriptionNotifications(ctx context.Context) error {
+func (s *SubscriptionService) ProcessSubscriptionExpiration() error {
+	ctx := context.Background()
 	customers, err := s.getCustomersWithExpiringSubscriptions()
 	if err != nil {
-		return fmt.Errorf("failed to get customers with expiring subscriptions: %w", err)
+		slog.Error("Failed to get customers with expiring subscriptions", "error", err)
+		return err
 	}
 
 	slog.Info(fmt.Sprintf("Found %d customers with expiring subscriptions", len(*customers)))
-
+	if len(*customers) == 0 {
+		return nil
+	}
 	now := time.Now()
-	for _, customer := range *customers {
 
+	customersIds := make([]int64, len(*customers))
+	for i, customer := range *customers {
+		customersIds[i] = customer.ID
+	}
+
+	nonCancelledTributes, err := s.purchaseRepository.FindTributesByCustomerIDs(ctx, customersIds)
+	if err != nil {
+		slog.Error("Failed to query tribute purchases", "error", err)
+		return err
+	}
+
+	customerIdTributes := make(map[int64]*database.Purchase, len(*nonCancelledTributes))
+	for i := range *nonCancelledTributes {
+		p := &(*nonCancelledTributes)[i]
+		customerIdTributes[p.CustomerID] = p
+	}
+
+	tributesProcessed := make(map[int64]bool, len(*nonCancelledTributes))
+
+	for _, customer := range *customers {
 		daysUntilExpiration := s.getDaysUntilExpiration(now, *customer.ExpireAt)
+
+		if p, ok := customerIdTributes[customer.ID]; ok {
+			if daysUntilExpiration != 1 {
+				continue
+			}
+			_, purchaseId, err := s.paymentService.CreatePurchase(ctx, p.Amount, p.Month, &customer, database.InvoiceTypeTribute)
+			if err != nil {
+				slog.Error("Failed to create tribute purchase", "error", err)
+				continue
+			}
+
+			err = s.paymentService.ProcessPurchaseById(ctx, purchaseId)
+			if err != nil {
+				slog.Error("Failed to process tribute purchase", "error", err)
+				continue
+			}
+			slog.Info("Tribute purchase processed successfully", "purchase_id", purchaseId)
+			tributesProcessed[customer.ID] = true
+		}
+		if _, ok := tributesProcessed[customer.ID]; ok {
+			continue
+		}
 
 		err := s.sendNotification(ctx, customer)
 		if err != nil {
@@ -49,6 +100,8 @@ func (s *SubscriptionService) SendSubscriptionNotifications(ctx context.Context)
 			"days_until_expiration", daysUntilExpiration)
 	}
 
+	slog.Info(fmt.Sprintf("Processed tributes customers %d with expiring subscriptions", len(tributesProcessed)))
+	slog.Info(fmt.Sprintf("Sent notifications to %d customers with expiring subscriptions", len(*customers)-len(tributesProcessed)))
 	return nil
 }
 

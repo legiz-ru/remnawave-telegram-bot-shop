@@ -209,3 +209,90 @@ func (pr *PurchaseRepository) MarkAsPaid(ctx context.Context, purchaseID int64) 
 
 	return pr.UpdateFields(ctx, purchaseID, updates)
 }
+
+func (pr *PurchaseRepository) FindTributesByCustomerIDs(
+	ctx context.Context,
+	customerIDs []int64,
+) (*[]Purchase, error) {
+	if len(customerIDs) == 0 {
+		empty := make([]Purchase, 0)
+		return &empty, nil
+	}
+
+	builder := sq.
+		Select("*").
+		From("purchase").
+		Where(sq.And{
+			sq.Eq{"invoice_type": InvoiceTypeTribute},
+			sq.NotEq{"status": PurchaseStatusCancel},
+			sq.Eq{"customer_id": customerIDs}, // slice → IN (...)
+		}).
+		PlaceholderFormat(sq.Dollar)
+
+	sql, args, err := builder.ToSql()
+	if err != nil {
+		return nil, fmt.Errorf("build query: %w", err)
+	}
+
+	rows, err := pr.pool.Query(ctx, sql, args...)
+	if err != nil {
+		return nil, fmt.Errorf("query purchases: %w", err)
+	}
+	defer rows.Close()
+
+	var purchases []Purchase
+	for rows.Next() {
+		var p Purchase
+		if err := rows.Scan(
+			&p.ID, &p.Amount, &p.CustomerID, &p.CreatedAt, &p.Month,
+			&p.PaidAt, &p.Currency, &p.ExpireAt, &p.Status, &p.InvoiceType,
+			&p.CryptoInvoiceID, &p.CryptoInvoiceLink, &p.YookasaURL, &p.YookasaID,
+		); err != nil {
+			return nil, fmt.Errorf("scan purchase: %w", err)
+		}
+		purchases = append(purchases, p)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, fmt.Errorf("iterate rows: %w", err)
+	}
+
+	return &purchases, nil
+}
+
+func (pr *PurchaseRepository) FindByCustomerIDAndInvoiceTypeLast(
+	ctx context.Context,
+	customerID int64,
+	invoiceType InvoiceType,
+) (*Purchase, error) {
+
+	query := sq.Select("*").
+		From("purchase").
+		Where(sq.And{
+			sq.Eq{"customer_id": customerID},
+			sq.Eq{"invoice_type": invoiceType},
+		}).
+		OrderBy("created_at DESC").
+		Limit(1).
+		PlaceholderFormat(sq.Dollar)
+
+	sql, args, err := query.ToSql()
+	if err != nil {
+		return nil, fmt.Errorf("build query: %w", err)
+	}
+
+	p := &Purchase{}
+	err = pr.pool.QueryRow(ctx, sql, args...).Scan(
+		&p.ID, &p.Amount, &p.CustomerID, &p.CreatedAt, &p.Month,
+		&p.PaidAt, &p.Currency, &p.ExpireAt, &p.Status, &p.InvoiceType,
+		&p.CryptoInvoiceID, &p.CryptoInvoiceLink, &p.YookasaURL, &p.YookasaID,
+	)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil, nil
+		}
+		return nil, fmt.Errorf("query purchase: %w", err)
+	}
+
+	return p, nil
+}

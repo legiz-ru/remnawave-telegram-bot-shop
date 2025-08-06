@@ -27,7 +27,7 @@ func (s SyncService) Sync() {
 	var mappedUsers []database.Customer
 	users, err := s.client.GetUsers(ctx)
 	if err != nil {
-		slog.Error("Error while getting users from remnawave")
+		slog.Error("Error while getting users from remnawave", err)
 		return
 	}
 	if users == nil || len(*users) == 0 {

@@ -71,9 +71,9 @@ func main() {
 		defer cronScheduler.Stop()
 	}
 
-	subService := notification.NewSubscriptionService(customerRepository, b, tm)
+	subService := notification.NewSubscriptionService(customerRepository, purchaseRepository, paymentService, b, tm)
 
-	subscriptionNotificationCronScheduler := setupSubscriptionNotifier(subService)
+	subscriptionNotificationCronScheduler := subscriptionChecker(subService)
 	subscriptionNotificationCronScheduler.Start()
 	defer subscriptionNotificationCronScheduler.Stop()
 
@@ -205,13 +205,11 @@ func isAdminMiddleware(next bot.HandlerFunc) bot.HandlerFunc {
 	}
 }
 
-func setupSubscriptionNotifier(subService *notification.SubscriptionService) *cron.Cron {
+func subscriptionChecker(subService *notification.SubscriptionService) *cron.Cron {
 	c := cron.New()
 
 	_, err := c.AddFunc("0 16 * * *", func() {
-		slog.Info("Running subscription notification check")
-
-		err := subService.SendSubscriptionNotifications(context.Background())
+		err := subService.ProcessSubscriptionExpiration()
 		if err != nil {
 			slog.Error("Error sending subscription notifications", "error", err)
 		}
@@ -299,7 +297,7 @@ func checkYookasaInvoice(
 		}
 
 		if invoice.IsCancelled() {
-			err := paymentService.CancelPayment(purchase.ID)
+			err := paymentService.CancelYookassaPayment(purchase.ID)
 			if err != nil {
 				slog.Error("Error canceling invoice", "invoiceId", invoice.ID, "purchaseId", purchase.ID, err)
 			}
