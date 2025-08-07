@@ -193,11 +193,16 @@ func (s PaymentService) CreatePurchase(ctx context.Context, amount float64, mont
 	}
 }
 
+var ErrCustomerNotFound = errors.New("customer not found")
+
 func (s PaymentService) CancelTributePurchase(ctx context.Context, telegramId int64) error {
 	slog.Info("Canceling tribute purchase", "telegram_id", utils.MaskHalfInt64(telegramId))
 	customer, err := s.customerRepository.FindByTelegramId(ctx, telegramId)
 	if err != nil {
 		return err
+	}
+	if customer == nil {
+		return ErrCustomerNotFound
 	}
 	tributePurchase, err := s.purchaseRepository.FindByCustomerIDAndInvoiceTypeLast(ctx, customer.ID, database.InvoiceTypeTribute)
 	if err != nil {

@@ -6,6 +6,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"io"
 	"log"
 	"log/slog"
@@ -80,6 +81,11 @@ func (c *Client) WebHookHandler() http.Handler {
 			}
 		case CancelledSubscription:
 			err := c.cancelSubscriptionHandler(ctx, wh)
+			if errors.Is(err, payment.ErrCustomerNotFound) {
+				slog.Warn("webhook: customer not found", "telegram_id", wh.Payload.TelegramUserID)
+				w.WriteHeader(http.StatusOK)
+				return
+			}
 			if err != nil {
 				slog.Error("webhook: cancel subscription error", "error", err, "payload", string(body))
 				http.Error(w, "internal server error", http.StatusInternalServerError)
