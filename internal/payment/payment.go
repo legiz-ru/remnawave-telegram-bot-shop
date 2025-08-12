@@ -256,7 +256,7 @@ func (s PaymentService) createCryptoInvoice(ctx context.Context, amount float64,
 	invoice, err := s.cryptoPayClient.CreateInvoice(&cryptopay.InvoiceRequest{
 		CurrencyType:   "fiat",
 		Fiat:           "RUB",
-		Amount:         fmt.Sprintf("%d", amount),
+		Amount:         fmt.Sprintf("%d", int(amount)),
 		AcceptedAssets: "USDT",
 		Payload:        fmt.Sprintf("purchaseId=%d&username=%s", purchaseId, ctx.Value("username")),
 		Description:    fmt.Sprintf("Subscription on %d month", months),

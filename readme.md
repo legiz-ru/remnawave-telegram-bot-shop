@@ -38,9 +38,9 @@ purchase and manage subscriptions through Telegram with multiple payment system 
 ## Version Support
 
 | Remnawave | Bot   |
-|-------|-------|
-| 1.6   | 2.3.6 |
-| 2     | 3.0.0 |
+|-----------|-------|
+| 1.6       | 2.3.6 |
+| 2         | 3.0.0 |
 
 ## API
 
@@ -93,6 +93,7 @@ The application requires the following environment variables to be set:
 | `SUPPORT_URL`            | URL to support chat or page (optional) - if not set, button will not be displayed                                                          |
 | `FEEDBACK_URL`           | URL to feedback/reviews page (optional) - if not set, button will not be displayed                                                         |
 | `CHANNEL_URL`            | URL to Telegram channel (optional) - if not set, button will not be displayed                                                              |
+| `TOS_URL`                | URL to TOS (optional) - if not set, button will not be displayed                                                                           |
 | `ADMIN_TELEGRAM_ID`      | Admin telegram id                                                                                                                          |
 | `TRIAL_TRAFFIC_LIMIT`    | Maximum allowed traffic in gb for trial subscriptions                                                                                      |     
 | `TRIAL_DAYS`             | Number of days for trial subscriptions. if 0 = disabled.                                                                                   |
